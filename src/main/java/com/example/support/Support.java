@@ -3,6 +3,7 @@ package com.example.support;
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.OutputConfig;
 import com.anthropic.models.messages.TextBlock;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,6 +23,8 @@ public final class Support {
         var params = MessageCreateParams.builder()
                 .model("claude-opus-5-5")
                 .maxTokens(1024L)
+                // Opus 5.5 always thinks; low effort is enough for a short reply.
+                .outputConfig(OutputConfig.builder().effort(OutputConfig.Effort.LOW).build())
                 .system(systemPrompt)
                 .addUserMessage(message)
                 .build();
