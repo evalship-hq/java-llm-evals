@@ -1,6 +1,6 @@
-# Evals for the support bot. Build once with ./mvnw -q package, then run ./tinyeval.
+# Evals for the support bot. Run them with the command in the README.
 # The worker starts the JVM and the client once, and answers every test case sent to it.
-worker java -cp "target/classes:target/dependency/*" com.example.support.EvalWorker
+worker java -cp "target/classes:target/test-classes:target/dependency/*" com.example.support.EvalWorker
 
 test_case "refund after the window" "Can I still return my shoes? They arrived 40 days ago."
   target src/main/java/com/example/support/Support.java#answer

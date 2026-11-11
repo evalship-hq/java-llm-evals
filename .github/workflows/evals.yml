@@ -16,7 +16,7 @@ jobs:
           java-version: 21
           cache: maven
       - run: ./mvnw -B -q package
-      - run: ./tinyeval -n 3
+      - run: ./mvnw -B -q exec:java -Dexec.mainClass=com.evalship.tinyeval.Main -Dexec.classpathScope=test -Dexec.args="-n 3"
         if: env.ANTHROPIC_API_KEY != ''
       - run: echo "::notice::Add the ANTHROPIC_API_KEY repository secret to run the evals."
         if: env.ANTHROPIC_API_KEY == ''

@@ -19,6 +19,12 @@
       <artifactId>anthropic-java</artifactId>
       <version>3.6.0</version>
     </dependency>
+    <dependency>
+      <groupId>com.evalship</groupId>
+      <artifactId>tinyeval</artifactId>
+      <version>0.11.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

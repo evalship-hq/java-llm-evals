@@ -4,12 +4,11 @@ A Java support bot whose AI call is tested on every pull request with [tinyeval]
 
 ## Run it
 
-Clone this repo or use it as a template. You need Java 21; `./mvnw` downloads Maven for you.
+Clone this repo or use it as a template. You need Java 21; `./mvnw` downloads Maven and tinyeval for you. This builds the app and runs the evals:
 
 ```sh
 export ANTHROPIC_API_KEY=sk-ant-...
-./mvnw -q package   # again after each change to the Java code
-./tinyeval
+./mvnw -q package exec:java -Dexec.mainClass=com.evalship.tinyeval.Main -Dexec.classpathScope=test
 ```
 
 ```
@@ -25,23 +24,23 @@ All 3 evals passed (eval-results.json)
 
 - `src/main/java/com/example/support/Support.java`: the bot. `answer(message)` sends the message to Claude with the system prompt.
 - `prompts/support.md`: the system prompt.
-- `src/main/java/com/example/support/EvalWorker.java`: starts the bot once and answers each test case tinyeval sends it.
+- `src/test/java/com/example/support/EvalWorker.java`: starts the bot once and answers each test case tinyeval sends it.
 - `evals/support.sh`: the test cases, with the checks each reply must pass.
-- `tinyeval`: the eval runner, a single bash file.
 - `.github/workflows/evals.yml`: builds the app and runs the evals on every pull request.
-- `pom.xml` and `mvnw`: the Maven build, with the official Anthropic Java SDK.
+- `.github/dependabot.yml`: a weekly pull request for each new version of tinyeval, the Anthropic SDK or an action.
+- `pom.xml` and `mvnw`: the Maven build, with the official Anthropic Java SDK, and tinyeval as a test dependency.
 
 ## Use it for your app
 
-Replace `answer` with your own AI call. Keep the worker: tinyeval then starts your app once, not once per test case. A failed API call (no key, rate limit, server error, network) makes the worker reply `#tinyeval couldnt_run`, so tinyeval counts it as couldn't run rather than as a failed eval.
+Replace `answer` with your own AI call. Keep the worker: tinyeval then starts your app once, not once per test case. A failed API call (no key, rate limit, server error, network) makes the worker reply `#tinyeval couldnt_run`, so tinyeval counts it as couldn't run rather than as a failed eval. An exception from your own code becomes the reply, so the eval fails.
 
 Write your test cases in `evals/`. Each one lists the checks its reply must pass, such as `matches` for a regex and `judge` for a criterion a model grades. See [all check lines](https://github.com/evalship-hq/tinyeval#writing-evals).
 
-In a Spring Boot app, start the application context once in the worker's `main` with `SpringApplication.run`, then `getBean` your service and call it in the loop. Keep the banner and console logs off stdout, since stdout carries the replies.
+In a Spring Boot app, start the application context with `SpringApplication.run` where the worker builds `Support`, then `getBean` your service. Started there, the banner and console logs go to stderr, since stdout carries the replies.
 
 ## In CI
 
-Add `ANTHROPIC_API_KEY` as a repository secret. The judge uses the same key. The workflow builds the app, runs each test case 3 times and passes it when at least half of the runs pass. A failing eval fails the job, so you can make it a required check. The results go up as the `eval-results` artifact. Without the secret, the workflow skips the evals and says so in a notice.
+Add `ANTHROPIC_API_KEY` as a repository secret. The judge uses the same key. The workflow builds the app, runs each test case 3 times and passes it when at least half of the runs pass. A failing eval fails the job, so you can make it a required check. The results go up as the `eval-results` artifact. Without the secret, the workflow skips the evals and says so in a notice. Dependabot's pull requests get no repository secrets, so they skip the evals with that notice.
 
 ## Compare pull requests with main
 
